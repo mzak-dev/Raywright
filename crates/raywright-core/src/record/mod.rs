@@ -466,7 +466,9 @@ impl Expect<&Recording> {
                     imaging::save_png(img, &expected)?;
                     continue;
                 }
-                problems.push(format!("{part}: no expected picture"));
+                let (actual, _) = store.results(&test, &part);
+                imaging::save_png(img, &actual)?;
+                problems.push(format!("{part}: no expected picture at {} (the actual one is {})", expected.display(), actual.display()));
                 continue;
             }
             let want = imaging::load_png(&expected)?;
