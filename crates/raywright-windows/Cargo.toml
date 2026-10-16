@@ -1,0 +1,5 @@
+[package]
+name = "raywright-windows"
+version.workspace = true
+edition.workspace = true
+publish = false

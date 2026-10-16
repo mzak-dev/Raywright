@@ -1,0 +1,5 @@
+[package]
+name = "raywright-macros"
+version.workspace = true
+edition.workspace = true
+publish = false

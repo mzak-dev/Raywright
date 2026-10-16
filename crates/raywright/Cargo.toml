@@ -1,0 +1,5 @@
+[package]
+name = "raywright"
+version.workspace = true
+edition.workspace = true
+publish = false
