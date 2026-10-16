@@ -232,7 +232,7 @@ pub struct RecordingHandle {
 impl RecordingHandle {
     /// Stops now.
     pub async fn stop(mut self) -> Result<Recording> {
-        let _ = self.stop.send(true);
+        self.stop.send_replace(true);
         self.join().await
     }
 
@@ -262,7 +262,7 @@ impl RecordingHandle {
 
 impl Drop for RecordingHandle {
     fn drop(&mut self) {
-        let _ = self.stop.send(true);
+        self.stop.send_replace(true);
     }
 }
 
@@ -370,7 +370,7 @@ impl Window {
             }
         }
         let out = f.await;
-        let _ = open.send(true);
+        open.send_replace(true);
         let rec = if settles { h.finished().await? } else { h.stop().await? };
         Ok((out, rec))
     }

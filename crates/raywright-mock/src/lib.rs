@@ -112,7 +112,7 @@ impl MockApp {
         for id in ids {
             let _ = self.events.send(DriverEvent::WindowClosed(WindowId(id)));
         }
-        let _ = self.exit.send(Some(Some(code)));
+        self.exit.send_replace(Some(Some(code)));
         let _ = self.events.send(DriverEvent::Exited(Some(code)));
         if let Some(b) = self.bridge.lock().unwrap().take() {
             b.stop();

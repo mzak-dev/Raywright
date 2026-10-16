@@ -93,7 +93,14 @@ dependencies = [
 
 [[package]]
 name = "demo-app"
-version = "0.0.0"
+version = "0.1.0"
+dependencies = [
+ "image",
+ "raywright-bridge",
+ "raywright-protocol",
+ "serde_json",
+ "windows",
+]
 
 [[package]]
 name = "equivalent"
@@ -421,6 +428,15 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 [[package]]
 name = "raywright"
 version = "0.1.0"
+dependencies = [
+ "raywright-core",
+ "raywright-macros",
+ "raywright-mock",
+ "raywright-protocol",
+ "raywright-windows",
+ "serde_json",
+ "tokio",
+]
 
 [[package]]
 name = "raywright-bridge"
@@ -459,6 +475,11 @@ dependencies = [
 [[package]]
 name = "raywright-macros"
 version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
 
 [[package]]
 name = "raywright-mcp"
@@ -491,6 +512,15 @@ dependencies = [
 [[package]]
 name = "raywright-windows"
 version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "image",
+ "raywright-core",
+ "raywright-protocol",
+ "tokio",
+ "tracing",
+ "windows",
+]
 
 [[package]]
 name = "regex"

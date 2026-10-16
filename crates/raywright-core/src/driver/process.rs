@@ -115,7 +115,7 @@ impl OsProcess {
                     child.wait().await
                 }
             };
-            let _ = exit_tx.send(Some(status.ok().and_then(|s| s.code())));
+            exit_tx.send_replace(Some(status.ok().and_then(|s| s.code())));
         });
         Ok(OsProcess { pid, output, exit, kill })
     }

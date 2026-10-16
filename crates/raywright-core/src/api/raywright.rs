@@ -112,6 +112,16 @@ impl Raywright {
     }
 }
 
+type DriverFactory = fn() -> Result<Arc<dyn Driver>>;
+
+static DEFAULT_DRIVER: std::sync::OnceLock<DriverFactory> = std::sync::OnceLock::new();
+
+/// Sets the driver [`RaywrightBuilder::build`] uses when none is given. The `raywright`
+/// crate sets the platform's; the first call wins.
+pub fn set_default_driver(make: DriverFactory) {
+    let _ = DEFAULT_DRIVER.set(make);
+}
+
 /// Builds a [`Raywright`]: the config file and environment first, then these calls.
 #[derive(Default)]
 pub struct RaywrightBuilder {
@@ -216,7 +226,13 @@ impl RaywrightBuilder {
     }
 
     pub fn build(self) -> Result<Raywright> {
-        let driver = self.driver.ok_or_else(|| Error::Config("no driver: use `raywright::Raywright::new()` (the facade picks the platform's) or `.driver(...)`".into()))?;
+        let driver = match self.driver {
+            Some(d) => d,
+            None => match DEFAULT_DRIVER.get() {
+                Some(make) => make()?,
+                None => return Err(Error::Config("no driver: use the `raywright` crate (it picks the platform's) or `.driver(...)`".into())),
+            },
+        };
         let mut config = match self.config {
             Some(c) => c,
             None => Config::load()?,

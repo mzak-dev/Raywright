@@ -207,7 +207,7 @@ impl App {
             loop {
                 let Some(inner) = weak.upgrade() else { return };
                 if inner.process.as_ref().is_some_and(|p| p.exit_status().is_some()) {
-                    let _ = inner.bridge_tx.send(BridgeState::Failed("the app exited".into()));
+                    inner.bridge_tx.send_replace(BridgeState::Failed("the app exited".into()));
                     return;
                 }
                 let announced = inner.process.as_ref().and_then(|p| p.output().lines().iter().rev().find_map(|l| raywright_protocol::parse_announce(l)));
@@ -219,24 +219,24 @@ impl App {
                 if usable {
                     let Some(transport) = registry.transport(target.scheme()) else {
                         if let Some(inner) = weak.upgrade() {
-                            let _ = inner.bridge_tx.send(BridgeState::Failed(format!("no transport for {target}")));
+                            inner.bridge_tx.send_replace(BridgeState::Failed(format!("no transport for {target}")));
                         }
                         return;
                     };
                     if let Ok(client) = BridgeClient::connect(transport.as_ref(), &target, timeout).await {
                         let Some(inner) = weak.upgrade() else { return };
-                        let _ = inner.bridge_tx.send(BridgeState::Connected(client.clone()));
+                        inner.bridge_tx.send_replace(BridgeState::Connected(client.clone()));
                         drop(inner);
                         client.closed().await;
                         let Some(inner) = weak.upgrade() else { return };
-                        let _ = inner.bridge_tx.send(BridgeState::Pending);
+                        inner.bridge_tx.send_replace(BridgeState::Pending);
                         deadline = tokio::time::Instant::now() + patience;
                         continue;
                     }
                 }
                 if tokio::time::Instant::now() >= deadline {
                     if let Some(inner) = weak.upgrade() {
-                        let _ = inner.bridge_tx.send(BridgeState::Failed(format!(
+                        inner.bridge_tx.send_replace(BridgeState::Failed(format!(
                             "the app did not open its automation bridge at {target} within {} s (built without bridge support?)",
                             patience.as_secs()
                         )));
@@ -449,7 +449,7 @@ impl App {
     pub async fn connect_bridge(&self, addr: &BridgeAddr) -> Result<BridgeClient> {
         let transport = self.inner.rw.registry().transport(addr.scheme()).ok_or_else(|| Error::Bridge(format!("no transport for {addr}")))?;
         let client = BridgeClient::connect(transport.as_ref(), addr, self.config().bridge_timeout.0).await?;
-        let _ = self.inner.bridge_tx.send(BridgeState::Connected(client.clone()));
+        self.inner.bridge_tx.send_replace(BridgeState::Connected(client.clone()));
         Ok(client)
     }
 
