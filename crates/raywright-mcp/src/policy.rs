@@ -43,7 +43,13 @@ impl Policy {
     /// A path inside the output directory (no escaping it with `..`).
     pub fn output(&self, name: &str) -> Result<PathBuf, String> {
         let p = Path::new(name);
-        if p.is_absolute() || p.components().any(|c| matches!(c, std::path::Component::ParentDir)) {
+        // `/x`, `\x` and `C:x` are not absolute on Windows yet still leave the directory in `join`,
+        // and `a:b` names a stream there: no `:` anywhere
+        if p.is_absolute()
+            || p.components().any(|c| matches!(c, std::path::Component::ParentDir | std::path::Component::RootDir | std::path::Component::Prefix(_)))
+            || name.starts_with(['/', '\\'])
+            || name.contains(':')
+        {
             return Err(format!("{name}: files go in the output directory, give a plain name"));
         }
         Ok(self.output_dir.join(p))
@@ -62,6 +68,7 @@ mod tests {
         assert!(p.may_attach().is_err());
         assert!(p.output("../x.png").is_err());
         assert!(p.output("/etc/x").is_err());
-        assert_eq!(p.output("a.png").unwrap(), PathBuf::from("raywright-mcp-output/a.png"));
+        assert!(p.output("\\x").is_err() && p.output("C:x").is_err() && p.output("C:\\x").is_err());
+        assert_eq!(p.output("a.png").unwrap(), Path::new("raywright-mcp-output").join("a.png"));
     }
 }
