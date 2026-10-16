@@ -21,6 +21,7 @@ const ID_COUNT: i32 = 2;
 const ID_INPUT: i32 = 3;
 const ID_ENABLED: i32 = 4;
 const ID_CANVAS: i32 = 5;
+const ID_NOTE: i32 = 6;
 const WM_APP_REDRAW: u32 = WM_APP + 1;
 
 /// Where the canvas sits in the main window's client area, px.
@@ -428,7 +429,9 @@ pub fn run() {
         .expect("main window");
         child(main, w!("BUTTON"), "Increment", WINDOW_STYLE(BS_PUSHBUTTON as u32) | WS_TABSTOP, (20, 20, 100, 30), ID_INCREMENT);
         child(main, w!("STATIC"), "Count: 0", WINDOW_STYLE(0), (140, 25, 120, 24), ID_COUNT);
-        child(main, w!("EDIT"), "", WS_BORDER | WS_TABSTOP | WINDOW_STYLE(ES_AUTOHSCROLL as u32), (20, 70, 200, 26), ID_INPUT);
+        // UI Automation names an edit box after the label created just before it
+        child(main, w!("STATIC"), "Note:", WINDOW_STYLE(0), (20, 74, 40, 20), ID_NOTE);
+        child(main, w!("EDIT"), "", WS_BORDER | WS_TABSTOP | WINDOW_STYLE(ES_AUTOHSCROLL as u32), (64, 70, 156, 26), ID_INPUT);
         child(main, w!("BUTTON"), "Enabled", WINDOW_STYLE(BS_AUTOCHECKBOX as u32) | WS_TABSTOP, (20, 120, 100, 26), ID_ENABLED);
         let canvas = child(main, w!("RaywrightCanvas"), "", WINDOW_STYLE(0), CANVAS, ID_CANVAS);
 

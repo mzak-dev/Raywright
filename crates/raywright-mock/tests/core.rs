@@ -113,7 +113,7 @@ async fn expectations_retry_and_negate() {
     expect(win.get_by_text("Nothing")).not().to_be_visible().await.unwrap();
     expect(win.locator("role=checkbox")).not().to_be_checked().await.unwrap();
     expect(win.locator("role=textbox")).to_be_editable().await.unwrap();
-    expect(win.locator("mock=*")).to_have_count(4).await.unwrap();
+    expect(win.locator("mock=*")).to_have_count(5).await.unwrap();
     expect(win.clone()).to_have_title("Raywright Demo").await.unwrap();
     expect(app.clone()).to_have_window("kind=main").await.unwrap();
     let e = expect(win.get_by_key("counter")).timeout(Duration::from_millis(200)).to_have_text("Count: 9").await.unwrap_err();
@@ -309,7 +309,7 @@ async fn extensions_plug_in_without_changing_raywright() {
     let rw = Raywright::builder().driver(MockDriver::new().into_arc()).config(c).engine(Arc::new(EvenEngine)).hook(counter.clone()).hook(script.clone()).build().unwrap();
     let app = rw.launch(LaunchSpec::exe("demo-app")).await.unwrap();
     let win = app.window(DEMO).await.unwrap();
-    expect(win.locator("mock=* >> even=")).to_have_count(2).await.unwrap();
+    expect(win.locator("mock=* >> even=")).to_have_count(3).await.unwrap();
     win.get_by_role("button", "Increment").click().await.unwrap();
     win.locator("role=textbox").fill("x").await.unwrap();
     assert_eq!(counter.0.load(std::sync::atomic::Ordering::SeqCst), 2);

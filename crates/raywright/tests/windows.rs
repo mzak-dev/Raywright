@@ -41,7 +41,7 @@ async fn native_input_uses_ui_automation_patterns() -> raywright::Result<()> {
     let app = rw.launch(LaunchSpec::exe(demo_app()).wait_for_window("title=\"Raywright Demo\"")).await?;
     let win = app.window("title=\"Raywright Demo\"").await?;
     win.get_by_role("button", "Increment").click().await?;
-    expect(win.locator("uia=Text")).to_have_text("Count: 1").await?;
+    expect(win.locator("uia=Text[name^=\"Count\"]")).to_have_text("Count: 1").await?;
     win.locator("uia=Edit").fill("native").await?;
     expect(win.locator("role=textbox")).to_have_value("native").await?;
     app.close().await?;

@@ -30,7 +30,8 @@ pub fn demo_state(pid: u32) -> MockState {
             }
         }),
         MockElement::new("counter", Role::Text, Rect::new(140.0, 20.0, 120.0, 30.0)).name(&counter_text(0)),
-        MockElement::new("input", Role::Textbox, Rect::new(20.0, 70.0, 200.0, 30.0)).editable(),
+        MockElement::new("note", Role::Text, Rect::new(20.0, 74.0, 40.0, 20.0)).name("Note:"),
+        MockElement::new("input", Role::Textbox, Rect::new(64.0, 70.0, 156.0, 30.0)).name("Note:").editable(),
         MockElement::new("enabled", Role::Checkbox, Rect::new(20.0, 120.0, 100.0, 30.0)).name("Enabled").checked(false),
         MockElement::new("canvas", Role::Canvas, Rect::new(20.0, 170.0, 360.0, 110.0)).drawn(None),
         MockElement::new("canvas.box", Role::Button, Rect::new(30.0, 180.0, 40.0, 40.0)).parent("canvas").drawn(Some("canvas.box")).on_click(|s| {

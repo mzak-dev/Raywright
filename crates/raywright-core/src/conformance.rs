@@ -31,7 +31,7 @@ pub fn demo(program: impl Into<std::path::PathBuf>) -> Fixture {
         spec: LaunchSpec::exe(program).wait_for_window("title=\"Raywright Demo\""),
         window: "title=\"Raywright Demo\"".into(),
         button: "role=button[name=\"Increment\"]".into(),
-        counter: "text=/^Count: \\d+$/".into(),
+        counter: "role=text[name=/^Count: \\d+$/]".into(),
         textbox: Some("role=textbox".into()),
         checkbox: Some("role=checkbox[name=\"Enabled\"]".into()),
         bridge_button: Some("action=\"canvas.box\"".into()),
