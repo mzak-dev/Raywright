@@ -1,7 +1,7 @@
 //! The facade on any OS: the test macro, the platform seam, the mock driver.
 
+use raywright::mock::MockDriver;
 use raywright::prelude::*;
-use raywright_mock::MockDriver;
 
 fn mock() -> Raywright {
     let mut c = Config::default();

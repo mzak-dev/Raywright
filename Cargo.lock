@@ -1492,6 +1492,8 @@ dependencies = [
 name = "raywright"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
+ "raywright",
  "raywright-core",
  "raywright-macros",
  "raywright-mock",

@@ -29,7 +29,9 @@ tokio.workspace = true
 raywright-windows.workspace = true
 
 [dev-dependencies]
-raywright-mock.workspace = true
+async-trait.workspace = true
+# the tests and examples use the mock driver
+raywright = { path = ".", features = ["mock"] }
 
 [package.metadata.docs.rs]
 default-target = "x86_64-pc-windows-msvc"
