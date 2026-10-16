@@ -6,7 +6,8 @@ or to hand the whole thing to a person or a model.
 
 ```rust
 let opts = RecordOptions::default().fps(60.0).until_settled(ms(300));
-let (clicked, rec) = win.record_during(opts, win.get_by_role("button", "Expand").click()).await?;
+let button = win.get_by_role("button", "Expand");
+let (clicked, rec) = win.record_during(opts, async { button.click().await }).await?;
 clicked?;
 
 expect(&rec).to_settle_within(ms(400))?;

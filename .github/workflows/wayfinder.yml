@@ -1,0 +1,62 @@
+# Raywright against a real Wayfinder: the Automation Bridge's unit tests and the end-to-end
+# tests of mzak-dev/desktopWidgets, built against THIS checkout of Raywright (not the pinned commit).
+name: Wayfinder
+
+on:
+  push:
+    branches: [ "feat/**" ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Wayfinder branch, tag or commit
+        default: feat/automation-bridge
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  wayfinder:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: raywright
+      - uses: actions/checkout@v4
+        with:
+          repository: mzak-dev/desktopWidgets
+          ref: ${{ inputs.ref || 'feat/automation-bridge' }}
+          path: wayfinder
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            wayfinder
+            wayfinder/e2e
+      - name: Build Wayfinder against this Raywright
+        shell: bash
+        run: |
+          mkdir -p wayfinder/.cargo
+          cat > wayfinder/.cargo/config.toml <<TOML
+          [patch."https://github.com/mzak-dev/Raywright"]
+          raywright-bridge = { path = "$GITHUB_WORKSPACE/raywright/crates/raywright-bridge" }
+          raywright = { path = "$GITHUB_WORKSPACE/raywright/crates/raywright" }
+          TOML
+          cat wayfinder/.cargo/config.toml
+      - name: Wayfinder unit tests with the bridge
+        working-directory: wayfinder
+        run: cargo test --lib --features automation
+      - name: Build Wayfinder with the bridge
+        working-directory: wayfinder
+        run: cargo build --features automation
+      - name: End-to-end tests
+        working-directory: wayfinder
+        env:
+          RAYWRIGHT_TRACE: retain-on-failure
+        run: cargo test --manifest-path e2e/Cargo.toml -- --test-threads=1
+      - name: Keep traces, recordings and diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wayfinder-e2e-output
+          path: wayfinder/e2e/target/raywright/**
+          if-no-files-found: ignore
