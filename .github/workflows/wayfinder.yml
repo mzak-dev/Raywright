@@ -13,6 +13,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # a failing e2e run should not throw away a 10-minute build
+  CACHE_ON_FAILURE: "true"
 
 jobs:
   wayfinder:
