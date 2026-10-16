@@ -56,6 +56,12 @@ impl Responder {
     }
 }
 
+impl std::fmt::Debug for Responder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Responder").field("id", &self.id).field("answered", &self.answered).finish()
+    }
+}
+
 impl Drop for Responder {
     fn drop(&mut self) {
         if !self.answered {
