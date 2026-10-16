@@ -30,7 +30,7 @@ unsafe fn read_bitmap(dc: HDC, bmp: HBITMAP, w: i32, h: i32) -> Result<RgbaImage
     if lines == 0 {
         return Err(Error::Platform("GetDIBits copied nothing".into()));
     }
-    for px in buf.chunks_exact_mut(4) {
+    for px in buf.as_chunks_mut::<4>().0 {
         px.swap(0, 2);
         px[3] = 255;
     }

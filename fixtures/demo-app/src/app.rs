@@ -261,7 +261,7 @@ fn print_client(main: HWND) -> Option<(Vec<u8>, u32, u32)> {
         if !ok || lines == 0 {
             return None;
         }
-        for p in buf.chunks_exact_mut(4) {
+        for p in buf.as_chunks_mut::<4>().0 {
             p.swap(0, 2);
             p[3] = 255;
         }
