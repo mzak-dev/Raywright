@@ -104,6 +104,22 @@ async fn timeouts_say_what_was_awaited() {
 }
 
 #[tokio::test]
+async fn a_window_of_the_same_app_in_front_takes_the_click_so_the_action_waits() {
+    let s = setup();
+    let app = s.rw.launch(LaunchSpec::exe("demo-app")).await.unwrap();
+    let win = app.window(DEMO).await.unwrap();
+    let mock = s.driver.app(app.pid().0).unwrap();
+    // a second window of the same app over the first: a popup, a widget on top
+    mock.update(|st| st.windows.push(raywright_mock::MockWindow::new(0x2000, "Popup", raywright_core::Rect::new(100.0, 100.0, 400.0, 300.0))));
+    let err = win.get_by_role("button", "Increment").click().timeout(Duration::from_millis(300)).await.unwrap_err();
+    assert!(err.to_string().contains("\"Popup\"") && err.to_string().contains("in front of the element"), "{err}");
+    // out of the way again, the same click goes through
+    mock.update(|st| st.windows.retain(|w| w.id != 0x2000));
+    win.get_by_role("button", "Increment").click().await.unwrap();
+    expect(win.get_by_key("counter")).to_have_text("Count: 1").await.unwrap();
+}
+
+#[tokio::test]
 async fn expectations_retry_and_negate() {
     let s = setup();
     let app = s.rw.launch(LaunchSpec::exe("demo-app")).await.unwrap();

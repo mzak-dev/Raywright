@@ -108,7 +108,9 @@ impl Check for ReceivesEvents {
     async fn check(&self, cx: &CheckCx<'_>) -> Result<CheckResult> {
         let Some(p) = cx.point else { return Ok(CheckResult::Pass) };
         match cx.driver.window_at(p).await? {
-            Some(w) if w.id != cx.window.id && w.pid != cx.window.pid => wait(format!("window \"{}\" ({}) is in front of the element", w.title, w.id)),
+            // any other top-level window counts, the app's own included: a popup or a second window
+            // of the same app in front takes the click just the same
+            Some(w) if w.id != cx.window.id => wait(format!("window \"{}\" ({}) is in front of the element", w.title, w.id)),
             _ => Ok(CheckResult::Pass),
         }
     }
