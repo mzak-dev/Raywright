@@ -51,7 +51,8 @@ impl BridgeSource {
                     None => Role::Group,
                 };
                 let mut state = ElementState::new(role);
-                state.name = e.text.clone();
+                // an app can name what has no text of its own (a button whose label is a child)
+                state.name = e.attrs.get("name").cloned().or_else(|| e.text.clone());
                 state.text = e.text.clone();
                 state.rect = rect;
                 state.visible = e.visible && rect.is_some_and(|r| !r.is_empty());
@@ -113,7 +114,7 @@ mod tests {
         let w = WindowInfo::new(WindowId(1), ProcessId(1));
         let els = vec![
             ElementDesc::new("card", PRect::new(0.0, 0.0, 100.0, 50.0)),
-            ElementDesc::new("play", PRect::new(10.0, 10.0, 20.0, 20.0)).action("media.play").parent("card"),
+            ElementDesc::new("play", PRect::new(10.0, 10.0, 20.0, 20.0)).action("media.play").parent("card").attr("name", "Play"),
             ElementDesc::new("hidden", PRect::new(90.0, 0.0, 20.0, 10.0)).text("x").clip(PRect::new(0.0, 0.0, 100.0, 50.0)),
         ];
         let name: Arc<str> = Arc::from("bridge");
@@ -121,6 +122,7 @@ mod tests {
         assert_eq!(nodes[1].state.rect, Some(Rect::new(520.0, 320.0, 40.0, 40.0)));
         assert_eq!(nodes[1].state.role, Role::Button);
         assert_eq!(nodes[1].parent, Some(0));
+        assert_eq!((nodes[1].state.label(), nodes[2].state.label()), (Some("Play"), Some("x")), "attrs.name names a button; text names the rest");
         assert_eq!(nodes[2].state.rect, Some(Rect::new(680.0, 300.0, 20.0, 20.0)));
         assert_eq!(nodes[2].state.role, Role::Text);
         assert_eq!(nodes[0].state.role, Role::Group);

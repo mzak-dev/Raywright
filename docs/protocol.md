@@ -65,7 +65,7 @@ logical px into physical. `kind`, `name` and `attrs` are the app's own words, e.
 | `rect`, `clip` | logical px relative to the client area; `clip` is the visible part |
 | `parent` | the `key` of the containing element |
 | `enabled`, `visible` | default `true` |
-| `attrs` | anything else, matched by `bridge=[name=value]` |
+| `attrs` | anything else, matched by `bridge=[name=value]`; `attrs.name` is the accessible name (`role=button[name="Play"]`) when it differs from `text` |
 
 ### Input events
 
