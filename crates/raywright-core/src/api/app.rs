@@ -130,22 +130,8 @@ impl App {
             hooks.push(t.clone());
             crate::test_support::register_tracer(t.clone());
         }
-        let app = App {
-            inner: Arc::new(AppInner {
-                rw,
-                name,
-                process,
-                driver_app,
-                bridge_tx,
-                bridge_source,
-                events,
-                hooks,
-                tracer,
-                data_dir,
-                temp_dir: Mutex::new(temp),
-                tasks: Mutex::new(Vec::new()),
-            }),
-        };
+        let app =
+            App { inner: Arc::new(AppInner { rw, name, process, driver_app, bridge_tx, bridge_source, events, hooks, tracer, data_dir, temp_dir: Mutex::new(temp), tasks: Mutex::new(Vec::new()) }) };
         app.spawn_event_tasks();
         app
     }
@@ -236,10 +222,9 @@ impl App {
                 }
                 if tokio::time::Instant::now() >= deadline {
                     if let Some(inner) = weak.upgrade() {
-                        inner.bridge_tx.send_replace(BridgeState::Failed(format!(
-                            "the app did not open its automation bridge at {target} within {} s (built without bridge support?)",
-                            patience.as_secs()
-                        )));
+                        inner
+                            .bridge_tx
+                            .send_replace(BridgeState::Failed(format!("the app did not open its automation bridge at {target} within {} s (built without bridge support?)", patience.as_secs())));
                     }
                     return;
                 }

@@ -33,7 +33,22 @@ pub struct MockElement {
 
 impl MockElement {
     pub fn new(key: &str, role: Role, rect: Rect) -> Self {
-        MockElement { key: key.into(), role, name: None, text: None, value: None, rect, enabled: true, visible: true, editable: false, checked: None, parent: None, action: None, drawn: false, on_click: None }
+        MockElement {
+            key: key.into(),
+            role,
+            name: None,
+            text: None,
+            value: None,
+            rect,
+            enabled: true,
+            visible: true,
+            editable: false,
+            checked: None,
+            parent: None,
+            action: None,
+            drawn: false,
+            on_click: None,
+        }
     }
     pub fn name(mut self, n: &str) -> Self {
         self.name = Some(n.into());
@@ -97,7 +112,20 @@ pub struct MockWindow {
 
 impl MockWindow {
     pub fn new(id: u64, title: &str, client: Rect) -> Self {
-        MockWindow { id, title: title.into(), class: "MockWindow".into(), client, scale: 1.0, visible: true, minimized: false, kind: None, elements: Vec::new(), background: [236, 236, 240, 255], on_key: None, slides: Vec::new() }
+        MockWindow {
+            id,
+            title: title.into(),
+            class: "MockWindow".into(),
+            client,
+            scale: 1.0,
+            visible: true,
+            minimized: false,
+            kind: None,
+            elements: Vec::new(),
+            background: [236, 236, 240, 255],
+            on_key: None,
+            slides: Vec::new(),
+        }
     }
 
     pub fn element(&self, key: &str) -> Option<&MockElement> {

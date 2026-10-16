@@ -62,7 +62,16 @@ impl Default for RecordOptions {
 
 impl RecordOptions {
     pub fn from_config(c: &RecordConfig) -> Self {
-        RecordOptions { fps: c.fps, max_duration: c.max_duration.0, max_frames: c.max_frames, until_settled: None, source: FrameSource::Interval, capture: None, change_threshold: c.change_threshold, settle: c.settle.0 }
+        RecordOptions {
+            fps: c.fps,
+            max_duration: c.max_duration.0,
+            max_frames: c.max_frames,
+            until_settled: None,
+            source: FrameSource::Interval,
+            capture: None,
+            change_threshold: c.change_threshold,
+            settle: c.settle.0,
+        }
     }
     pub fn fps(mut self, fps: f64) -> Self {
         self.fps = fps;
@@ -266,7 +275,15 @@ impl Drop for RecordingHandle {
     }
 }
 
-async fn run(mut stream: Box<dyn CaptureStream>, opts: RecordOptions, mut stop: watch::Receiver<bool>, mut gate: Option<watch::Receiver<bool>>, taken: Arc<std::sync::atomic::AtomicUsize>, label: String, exporters: Vec<Arc<dyn Exporter>>) -> Result<Recording> {
+async fn run(
+    mut stream: Box<dyn CaptureStream>,
+    opts: RecordOptions,
+    mut stop: watch::Receiver<bool>,
+    mut gate: Option<watch::Receiver<bool>>,
+    taken: Arc<std::sync::atomic::AtomicUsize>,
+    label: String,
+    exporters: Vec<Arc<dyn Exporter>>,
+) -> Result<Recording> {
     let mut frames: Vec<CapturedFrame> = Vec::new();
     let mut stats: Vec<FrameStat> = Vec::new();
     let mut notes = Vec::new();

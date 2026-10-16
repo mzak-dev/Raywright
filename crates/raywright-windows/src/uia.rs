@@ -103,9 +103,11 @@ impl UiaSource {
 
     async fn run<T: Send + 'static>(&self, f: impl FnOnce(&mut Worker) -> Result<T> + Send + 'static) -> Result<T> {
         let (tx, rx) = oneshot::channel();
-        self.tx.send(Box::new(move |w| {
-            let _ = tx.send(f(w));
-        })).map_err(|_| Error::Platform("UIA thread is gone".into()))?;
+        self.tx
+            .send(Box::new(move |w| {
+                let _ = tx.send(f(w));
+            }))
+            .map_err(|_| Error::Platform("UIA thread is gone".into()))?;
         rx.await.map_err(|_| Error::Platform("UIA job was dropped".into()))?
     }
 }

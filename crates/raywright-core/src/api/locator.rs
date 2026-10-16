@@ -221,12 +221,7 @@ impl Locator {
             }
         }
         let mut seen = HashSet::new();
-        let items = cur
-            .unwrap_or_default()
-            .into_iter()
-            .filter(|f| seen.insert(*f))
-            .map(|f| Resolved { node: set.node(f).clone(), source: set.source(f.source).clone() })
-            .collect();
+        let items = cur.unwrap_or_default().into_iter().filter(|f| seen.insert(*f)).map(|f| Resolved { node: set.node(f).clone(), source: set.source(f.source).clone() }).collect();
         Ok(Resolution { window: info, items, errors: set.errors() })
     }
 
@@ -354,7 +349,8 @@ pub(crate) fn waiting_reason(r: &Resolution) -> String {
 }
 
 async fn run_step(registry: &crate::Registry, cx: &QueryCx<'_>, input: Option<&[Found]>, step: &Step) -> Result<Vec<Found>> {
-    let engine = registry.engine(&step.engine).ok_or_else(|| Error::invalid_selector(step.to_string(), format!("no selector engine `{}` (have: {})", step.engine, registry.engine_names().join(", "))))?;
+    let engine =
+        registry.engine(&step.engine).ok_or_else(|| Error::invalid_selector(step.to_string(), format!("no selector engine `{}` (have: {})", step.engine, registry.engine_names().join(", "))))?;
     engine.validate(&step.body).map_err(|e| match e {
         Error::InvalidSelector { reason, .. } => Error::invalid_selector(step.to_string(), reason),
         e => e,

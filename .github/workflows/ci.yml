@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Everything above the platform, on systems without a driver yet: proves the seam holds
+  # (nothing outside raywright-windows needs Windows) and runs the core on the mock driver.
+  portable:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Format
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo fmt --all --check
+      - name: Check every crate and target
+        run: cargo check --locked --workspace --all-targets
+      - name: Clippy
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
+      - name: Tests (core, protocol, bridge, mock, facade, CLI, MCP)
+        run: cargo test --locked --workspace
+      - name: The core stays platform-free
+        shell: bash
+        run: |
+          if cargo tree --locked -p raywright-core -e normal --prefix none | grep -E '^(windows|raywright-windows) '; then
+            echo "::error::raywright-core must not depend on platform crates"; exit 1
+          fi
+          if cargo tree --locked -p raywright-bridge -e normal --prefix none | grep -E '^tokio '; then
+            echo "::error::raywright-bridge must not depend on tokio"; exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: raywright-output-${{ matrix.os }}
+          path: |
+            **/target/raywright/**
+            **/tests/__screenshots__/**
+          if-no-files-found: ignore
+
+  # The real driver against the demo app, on a desktop session.
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Clippy
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
+      - name: Build the demo app
+        run: cargo build --locked -p demo-app
+      - name: Tests, the Windows end-to-end ones included
+        env:
+          RAYWRIGHT_DEMO_APP: ${{ github.workspace }}\target\debug\demo-app.exe
+          RAYWRIGHT_TRACE: retain-on-failure
+        run: cargo test --locked --workspace -- --test-threads=1
+      - name: Docs
+        run: cargo doc --locked --workspace --no-deps
+      - name: Package
+        run: cargo package --locked --workspace --exclude demo-app --no-verify
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: raywright-output-windows
+          path: |
+            **/target/raywright/**
+          if-no-files-found: ignore

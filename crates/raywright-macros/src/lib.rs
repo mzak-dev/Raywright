@@ -25,7 +25,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
     let f = parse_macro_input!(item as ItemFn);
     if f.sig.asyncness.is_none() {
-        return syn::Error::new_spanned(&f.sig.fn_token, "#[raywright::test] needs an `async fn`").to_compile_error().into();
+        return syn::Error::new_spanned(f.sig.fn_token, "#[raywright::test] needs an `async fn`").to_compile_error().into();
     }
     if !f.sig.inputs.is_empty() {
         return syn::Error::new_spanned(&f.sig.inputs, "a test takes no arguments").to_compile_error().into();

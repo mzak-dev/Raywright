@@ -111,10 +111,20 @@ impl std::error::Error for RpcError {}
 #[derive(Clone, Debug, PartialEq)]
 pub enum Message {
     /// Has an `id`: the other side must answer.
-    Request { id: u64, method: String, params: Value },
+    Request {
+        id: u64,
+        method: String,
+        params: Value,
+    },
     /// No `id`: fire and forget (used for [`methods::FRAME`]).
-    Notification { method: String, params: Value },
-    Response { id: u64, result: Result<Value, RpcError> },
+    Notification {
+        method: String,
+        params: Value,
+    },
+    Response {
+        id: u64,
+        result: Result<Value, RpcError>,
+    },
 }
 
 #[derive(Serialize, Deserialize)]
@@ -388,14 +398,38 @@ pub enum Button {
 #[serde(tag = "type", rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum InputEvent {
-    MouseMove { x: f64, y: f64 },
-    MouseDown { x: f64, y: f64, #[serde(default)] button: Button },
-    MouseUp { x: f64, y: f64, #[serde(default)] button: Button },
-    Wheel { x: f64, y: f64, dx: f64, dy: f64 },
+    MouseMove {
+        x: f64,
+        y: f64,
+    },
+    MouseDown {
+        x: f64,
+        y: f64,
+        #[serde(default)]
+        button: Button,
+    },
+    MouseUp {
+        x: f64,
+        y: f64,
+        #[serde(default)]
+        button: Button,
+    },
+    Wheel {
+        x: f64,
+        y: f64,
+        dx: f64,
+        dy: f64,
+    },
     /// A key by its [W3C `key` value](https://www.w3.org/TR/uievents-key/): `"a"`, `"Enter"`, `"Control"`.
-    KeyDown { key: String },
-    KeyUp { key: String },
-    Text { text: String },
+    KeyDown {
+        key: String,
+    },
+    KeyUp {
+        key: String,
+    },
+    Text {
+        text: String,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

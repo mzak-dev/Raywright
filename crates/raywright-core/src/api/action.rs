@@ -250,7 +250,10 @@ impl Hover {
 
     async fn run(self) -> Result<()> {
         let loc = self.loc.clone();
-        perform(&self.loc, "hover", presets::hover(), &self.opts, self.position, Value::Null, |t, mode| async move { send(&loc.window.app, mode, Some(t.window), vec![InputAction::MouseMove(t.point)]).await }).await
+        perform(&self.loc, "hover", presets::hover(), &self.opts, self.position, Value::Null, |t, mode| async move {
+            send(&loc.window.app, mode, Some(t.window), vec![InputAction::MouseMove(t.point)]).await
+        })
+        .await
     }
 }
 common_options!(Hover);

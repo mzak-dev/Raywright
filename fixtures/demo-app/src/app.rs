@@ -6,8 +6,8 @@ use raywright_protocol::{CaptureResult, ClockMode, ClockParams, ClockStepParams,
 use serde_json::json;
 use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, POINT, RECT, WPARAM};
 use windows::Win32::Graphics::Gdi::{
-    BI_RGB, BITMAPINFO, BITMAPINFOHEADER, BeginPaint, COLOR_WINDOW, ClientToScreen, CreateCompatibleBitmap, CreateCompatibleDC, DIB_RGB_COLORS, DeleteDC, DeleteObject, EndPaint, GetDC, GetDIBits, GetSysColorBrush, HDC, InvalidateRect, PAINTSTRUCT, ReleaseDC,
-    SelectObject, SetDIBitsToDevice,
+    BI_RGB, BITMAPINFO, BITMAPINFOHEADER, BeginPaint, COLOR_WINDOW, ClientToScreen, CreateCompatibleBitmap, CreateCompatibleDC, DIB_RGB_COLORS, DeleteDC, DeleteObject, EndPaint, GetDC, GetDIBits,
+    GetSysColorBrush, HDC, InvalidateRect, PAINTSTRUCT, ReleaseDC, SelectObject, SetDIBitsToDevice,
 };
 use windows::Win32::Storage::Xps::{PRINT_WINDOW_FLAGS, PrintWindow};
 use windows::Win32::System::LibraryLoader::GetModuleHandleW;
@@ -112,7 +112,10 @@ fn hwnd(v: isize) -> HWND {
 }
 
 fn bitmap_info(w: i32, h: i32) -> BITMAPINFO {
-    BITMAPINFO { bmiHeader: BITMAPINFOHEADER { biSize: size_of::<BITMAPINFOHEADER>() as u32, biWidth: w, biHeight: -h, biPlanes: 1, biBitCount: 32, biCompression: BI_RGB.0, ..Default::default() }, ..Default::default() }
+    BITMAPINFO {
+        bmiHeader: BITMAPINFOHEADER { biSize: size_of::<BITMAPINFOHEADER>() as u32, biWidth: w, biHeight: -h, biPlanes: 1, biBitCount: 32, biCompression: BI_RGB.0, ..Default::default() },
+        ..Default::default()
+    }
 }
 
 /// Draws the canvas into `dc` and announces the frame.
@@ -218,7 +221,8 @@ unsafe extern "system" fn main_proc(h: HWND, msg: u32, wp: WPARAM, lp: LPARAM) -
 unsafe fn child(parent: HWND, class: PCWSTR, text: &str, style: WINDOW_STYLE, (x, y, w, h): (i32, i32, i32, i32), id: i32) -> HWND {
     // SAFETY: creating a child control of our own window.
     unsafe {
-        CreateWindowExW(WINDOW_EX_STYLE(0), class, &HSTRING::from(text), WS_CHILD | WS_VISIBLE | style, x, y, w, h, Some(parent), Some(HMENU(id as isize as *mut _)), None, None).expect("child control")
+        CreateWindowExW(WINDOW_EX_STYLE(0), class, &HSTRING::from(text), WS_CHILD | WS_VISIBLE | style, x, y, w, h, Some(parent), Some(HMENU(id as isize as *mut _)), None, None)
+            .expect("child control")
     }
 }
 
@@ -385,9 +389,24 @@ pub fn run() {
         let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         let instance = GetModuleHandleW(None).expect("module handle");
         let cursor = LoadCursorW(None, IDC_ARROW).ok();
-        let main_class = WNDCLASSEXW { cbSize: size_of::<WNDCLASSEXW>() as u32, lpfnWndProc: Some(main_proc), hInstance: instance.into(), hCursor: cursor.unwrap_or_default(), hbrBackground: GetSysColorBrush(COLOR_WINDOW), lpszClassName: w!("RaywrightDemo"), ..Default::default() };
+        let main_class = WNDCLASSEXW {
+            cbSize: size_of::<WNDCLASSEXW>() as u32,
+            lpfnWndProc: Some(main_proc),
+            hInstance: instance.into(),
+            hCursor: cursor.unwrap_or_default(),
+            hbrBackground: GetSysColorBrush(COLOR_WINDOW),
+            lpszClassName: w!("RaywrightDemo"),
+            ..Default::default()
+        };
         RegisterClassExW(&main_class);
-        let canvas_class = WNDCLASSEXW { cbSize: size_of::<WNDCLASSEXW>() as u32, lpfnWndProc: Some(canvas_proc), hInstance: instance.into(), hCursor: cursor.unwrap_or_default(), lpszClassName: w!("RaywrightCanvas"), ..Default::default() };
+        let canvas_class = WNDCLASSEXW {
+            cbSize: size_of::<WNDCLASSEXW>() as u32,
+            lpfnWndProc: Some(canvas_proc),
+            hInstance: instance.into(),
+            hCursor: cursor.unwrap_or_default(),
+            lpszClassName: w!("RaywrightCanvas"),
+            ..Default::default()
+        };
         RegisterClassExW(&canvas_class);
 
         let mut frame = RECT { left: 0, top: 0, right: 400, bottom: 300 };
@@ -413,7 +432,18 @@ pub fn run() {
         child(main, w!("BUTTON"), "Enabled", WINDOW_STYLE(BS_AUTOCHECKBOX as u32) | WS_TABSTOP, (20, 120, 100, 26), ID_ENABLED);
         let canvas = child(main, w!("RaywrightCanvas"), "", WINDOW_STYLE(0), CANVAS, ID_CANVAS);
 
-        let state = Arc::new(Mutex::new(Demo { count: 0, clicks: 0, from_x: 10.0, to_x: 10.0, anim_start: None, clock: Clock { manual: false, manual_ms: 0.0, start: Instant::now() }, frame_seq: 0, main: main.0 as isize, canvas: canvas.0 as isize, notifier: None }));
+        let state = Arc::new(Mutex::new(Demo {
+            count: 0,
+            clicks: 0,
+            from_x: 10.0,
+            to_x: 10.0,
+            anim_start: None,
+            clock: Clock { manual: false, manual_ms: 0.0, start: Instant::now() },
+            frame_seq: 0,
+            main: main.0 as isize,
+            canvas: canvas.0 as isize,
+            notifier: None,
+        }));
         let _ = DEMO.set(state.clone());
 
         match Bridge::builder("demo-app", env!("CARGO_PKG_VERSION"))

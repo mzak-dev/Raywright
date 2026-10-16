@@ -5,7 +5,9 @@ use std::time::Duration;
 
 use raywright_bridge::{Bridge, BridgeHandle, Request, Responder, capability};
 use raywright_core::imaging;
-use raywright_protocol::{CaptureParams, CaptureResult, ClockMode, ClockParams, ClockStepParams, ClockStepResult, ElementDesc, ElementsParams, InputEvent, InputParams, Rect as PRect, RpcError, WindowDesc, methods};
+use raywright_protocol::{
+    CaptureParams, CaptureResult, ClockMode, ClockParams, ClockStepParams, ClockStepResult, ElementDesc, ElementsParams, InputEvent, InputParams, Rect as PRect, RpcError, WindowDesc, methods,
+};
 use serde_json::json;
 
 use crate::{MockApp, click, render};
@@ -56,28 +58,39 @@ fn handle(app: &MockApp, req: Request, reply: Responder) {
         Ok(match req.method.as_str() {
             methods::WINDOWS => {
                 let s = app.snapshot();
-                json!(s.windows.iter().map(|w| {
-                    let mut d = WindowDesc::new(w.id, &w.title);
-                    d.kind = w.kind.clone();
-                    d.scale = w.scale;
-                    d.client = PRect::new(w.client.x, w.client.y, w.client.width, w.client.height);
-                    d
-                }).collect::<Vec<_>>())
+                json!(
+                    s.windows
+                        .iter()
+                        .map(|w| {
+                            let mut d = WindowDesc::new(w.id, &w.title);
+                            d.kind = w.kind.clone();
+                            d.scale = w.scale;
+                            d.client = PRect::new(w.client.x, w.client.y, w.client.width, w.client.height);
+                            d
+                        })
+                        .collect::<Vec<_>>()
+                )
             }
             methods::ELEMENTS => {
                 let p: ElementsParams = req.params()?;
                 let s = app.snapshot();
                 let w = s.window(p.window).ok_or_else(|| RpcError::app(format!("no window {}", p.window)))?;
-                json!(w.elements.iter().filter(|e| e.drawn).map(|e| {
-                    let mut d = ElementDesc::new(&e.key, PRect::new(e.rect.x, e.rect.y, e.rect.width, e.rect.height));
-                    d.action = e.action.clone();
-                    d.text = e.text.clone().or(e.name.clone());
-                    d.role = Some(e.role.as_str().to_string());
-                    d.parent = e.parent.clone();
-                    d.enabled = e.enabled;
-                    d.visible = e.visible;
-                    d
-                }).collect::<Vec<_>>())
+                json!(
+                    w.elements
+                        .iter()
+                        .filter(|e| e.drawn)
+                        .map(|e| {
+                            let mut d = ElementDesc::new(&e.key, PRect::new(e.rect.x, e.rect.y, e.rect.width, e.rect.height));
+                            d.action = e.action.clone();
+                            d.text = e.text.clone().or(e.name.clone());
+                            d.role = Some(e.role.as_str().to_string());
+                            d.parent = e.parent.clone();
+                            d.enabled = e.enabled;
+                            d.visible = e.visible;
+                            d
+                        })
+                        .collect::<Vec<_>>()
+                )
             }
             methods::CAPTURE => {
                 let p: CaptureParams = req.params()?;

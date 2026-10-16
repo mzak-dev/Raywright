@@ -71,7 +71,20 @@ pub struct WindowInfo {
 
 impl WindowInfo {
     pub fn new(id: WindowId, pid: ProcessId) -> Self {
-        WindowInfo { id, pid, title: String::new(), class: String::new(), rect: Rect::default(), client: Rect::default(), scale: 1.0, visible: true, minimized: false, kind: None, name: None, attrs: BTreeMap::new() }
+        WindowInfo {
+            id,
+            pid,
+            title: String::new(),
+            class: String::new(),
+            rect: Rect::default(),
+            client: Rect::default(),
+            scale: 1.0,
+            visible: true,
+            minimized: false,
+            kind: None,
+            name: None,
+            attrs: BTreeMap::new(),
+        }
     }
 
     pub fn is_shown(&self) -> bool {
@@ -87,7 +100,10 @@ pub enum DriverEvent {
     /// Moved, resized, shown, hidden, retitled.
     WindowChanged(WindowId),
     /// The app presented a frame (from the bridge).
-    Frame { window: WindowId, seq: u64 },
+    Frame {
+        window: WindowId,
+        seq: u64,
+    },
     Exited(Option<i32>),
 }
 
@@ -178,7 +194,10 @@ pub enum InputAction {
     MouseDown(MouseButton),
     MouseUp(MouseButton),
     /// Wheel at the last position; positive `dy` scrolls down, in wheel notches.
-    Wheel { dx: f64, dy: f64 },
+    Wheel {
+        dx: f64,
+        dy: f64,
+    },
     KeyDown(Key),
     KeyUp(Key),
     /// Text as typed, character by character, whatever the keyboard layout.

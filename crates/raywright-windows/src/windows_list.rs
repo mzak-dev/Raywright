@@ -6,7 +6,9 @@ use windows::Win32::Foundation::{HWND, LPARAM, POINT, RECT};
 use windows::Win32::Graphics::Dwm::{DWMWA_CLOAKED, DwmGetWindowAttribute};
 use windows::Win32::Graphics::Gdi::ClientToScreen;
 use windows::Win32::UI::HiDpi::GetDpiForWindow;
-use windows::Win32::UI::WindowsAndMessaging::{EnumWindows, GA_ROOT, GetAncestor, GetClassNameW, GetClientRect, GetWindowRect, GetWindowTextW, GetWindowThreadProcessId, IsIconic, IsWindow, IsWindowVisible, WindowFromPoint};
+use windows::Win32::UI::WindowsAndMessaging::{
+    EnumWindows, GA_ROOT, GetAncestor, GetClassNameW, GetClientRect, GetWindowRect, GetWindowTextW, GetWindowThreadProcessId, IsIconic, IsWindow, IsWindowVisible, WindowFromPoint,
+};
 use windows::core::BOOL;
 
 use crate::util::{id, wide_to_string};

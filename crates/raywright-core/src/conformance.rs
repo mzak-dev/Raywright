@@ -77,7 +77,8 @@ pub async fn run(rw: &Raywright, fx: &Fixture) -> Result<Vec<&'static str>> {
     if let (Some(b), Some(c)) = (&fx.bridge_button, &fx.bridge_counter)
         && app.bridge().await.is_ok()
     {
-        let (r, rec) = win.record_during(RecordOptions::default().fps(30.0).until_settled(Duration::from_millis(300)).max_duration(Duration::from_secs(5)), win.locator(b).click().into_future_boxed()).await?;
+        let (r, rec) =
+            win.record_during(RecordOptions::default().fps(30.0).until_settled(Duration::from_millis(300)).max_duration(Duration::from_secs(5)), win.locator(b).click().into_future_boxed()).await?;
         r?;
         expect(win.locator(c)).to_have_text("Clicks: 1").await?;
         if rec.len() < 2 {

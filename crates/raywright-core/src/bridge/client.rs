@@ -5,7 +5,8 @@ use std::time::Duration;
 
 use image::RgbaImage;
 use raywright_protocol::{
-    BridgeAddr, CallParams, CaptureParams, CaptureResult, ClockMode, ClockParams, ClockStepParams, ClockStepResult, ElementDesc, ElementsParams, FrameEvent, Hello, InputEvent, InputParams, Message, PROTOCOL_VERSION, RpcError, WindowDesc, methods,
+    BridgeAddr, CallParams, CaptureParams, CaptureResult, ClockMode, ClockParams, ClockStepParams, ClockStepResult, ElementDesc, ElementsParams, FrameEvent, Hello, InputEvent, InputParams, Message,
+    PROTOCOL_VERSION, RpcError, WindowDesc, methods,
 };
 use serde::Serialize;
 use serde::de::DeserializeOwned;

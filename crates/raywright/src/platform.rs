@@ -25,6 +25,7 @@ pub fn install() {
 /// `Raywright::new()` and `Raywright::platform()`, with the platform's driver.
 pub trait RaywrightExt: Sized {
     /// The platform's driver, `raywright.toml` and the environment.
+    #[allow(clippy::new_ret_no_self)]
     fn new() -> Result<Raywright>;
     /// A builder that starts with the platform's driver.
     fn platform() -> RaywrightBuilder;

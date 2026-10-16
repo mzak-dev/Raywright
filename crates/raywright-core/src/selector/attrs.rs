@@ -49,9 +49,7 @@ impl AttrFilter {
         check_name(name, whole)?;
         let raw = inner[i + op.len()..].trim();
         let unquoted = raw.strip_prefix('"').and_then(|r| r.strip_suffix('"')).map(|r| r.replace("\\\"", "\"")).unwrap_or_else(|| raw.to_string());
-        let exact = || -> Result<TextMatcher> {
-            if raw.starts_with('/') { TextMatcher::parse(raw) } else { Ok(TextMatcher::exact(&unquoted)) }
-        };
+        let exact = || -> Result<TextMatcher> { if raw.starts_with('/') { TextMatcher::parse(raw) } else { Ok(TextMatcher::exact(&unquoted)) } };
         let op = match op {
             "=" => AttrOp::Equals(exact()?),
             "!=" => AttrOp::NotEquals(exact()?),

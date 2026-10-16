@@ -112,6 +112,8 @@ impl Raywright {
     }
 }
 
+type ConfigEdit = Box<dyn FnOnce(&mut Config) + Send>;
+
 type DriverFactory = fn() -> Result<Arc<dyn Driver>>;
 
 static DEFAULT_DRIVER: std::sync::OnceLock<DriverFactory> = std::sync::OnceLock::new();
@@ -127,7 +129,7 @@ pub fn set_default_driver(make: DriverFactory) {
 pub struct RaywrightBuilder {
     driver: Option<Arc<dyn Driver>>,
     config: Option<Config>,
-    edits: Vec<Box<dyn FnOnce(&mut Config) + Send>>,
+    edits: Vec<ConfigEdit>,
     registry: Option<Registry>,
     engines: Vec<Arc<dyn SelectorEngine>>,
     sources: Vec<Arc<dyn ElementSource>>,

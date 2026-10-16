@@ -29,7 +29,9 @@ use std::sync::{Arc, Mutex};
 use async_trait::async_trait;
 use raywright_core::bridge::Transport;
 use raywright_core::config::{CaptureSource, InputMode};
-use raywright_core::driver::{AppDriver, CaptureBackend, CaptureTarget, Captured, Driver, DriverEvent, InputAction, InputBatch, InputDriver, MouseButton, OutputLog, ProcessHandle, ProcessId, WindowId, WindowInfo};
+use raywright_core::driver::{
+    AppDriver, CaptureBackend, CaptureTarget, Captured, Driver, DriverEvent, InputAction, InputBatch, InputDriver, MouseButton, OutputLog, ProcessHandle, ProcessId, WindowId, WindowInfo,
+};
 use raywright_core::element::{ElementNode, ElementRef, ElementSource, ElementState, Handled, NativeAction};
 use raywright_core::geometry::Point;
 use raywright_core::keys::{Key, NamedKey};
@@ -173,7 +175,9 @@ impl Default for MockDriver {
 impl MockDriver {
     /// A driver that knows `demo-app`.
     pub fn new() -> Self {
-        let d = MockDriver { world: Arc::new(World { factories: Mutex::new(HashMap::new()), apps: Mutex::new(Vec::new()), next_pid: AtomicU32::new(4000), inputs: Mutex::default(), pointer: Mutex::default() }) };
+        let d = MockDriver {
+            world: Arc::new(World { factories: Mutex::new(HashMap::new()), apps: Mutex::new(Vec::new()), next_pid: AtomicU32::new(4000), inputs: Mutex::default(), pointer: Mutex::default() }),
+        };
         d.register("demo-app", demo_state);
         d
     }

@@ -58,4 +58,3 @@ fn other_systems_say_they_are_not_supported_yet() {
         Ok(_) => panic!("no driver for this OS yet"),
     }
 }
-

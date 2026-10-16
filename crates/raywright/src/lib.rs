@@ -41,7 +41,9 @@ pub use platform::{RaywrightExt, default_driver, install};
 pub mod prelude {
     pub use crate::RaywrightExt;
     pub use raywright_core::config::{CaptureSource, Config, InputMode, TraceMode};
-    pub use raywright_core::{App, AttachTarget, BridgeMode, Error, FrameSource, LaunchSpec, Locator, MouseButton, Point, Raywright, RecordOptions, Recording, Rect, Result, WaitState, Window, expect, ms, secs};
+    pub use raywright_core::{
+        App, AttachTarget, BridgeMode, Error, FrameSource, LaunchSpec, Locator, MouseButton, Point, Raywright, RecordOptions, Recording, Rect, Result, WaitState, Window, expect, ms, secs,
+    };
 }
 
 #[doc(hidden)]

@@ -47,7 +47,7 @@ impl From<Dur> for Duration {
 impl fmt::Display for Dur {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let ms = self.0.as_millis();
-        if ms % 1000 == 0 && ms > 0 { write!(f, "{}s", ms / 1000) } else { write!(f, "{ms}ms") }
+        if ms.is_multiple_of(1000) && ms > 0 { write!(f, "{}s", ms / 1000) } else { write!(f, "{ms}ms") }
     }
 }
 

@@ -135,9 +135,6 @@ impl AppDriver for WindowsApp {
     }
 
     async fn focus(&self, window: WindowId) -> Result<()> {
-        blocking(move || {
-            if focus::bring_to_front(hwnd(window)) { Ok(()) } else { Err(Error::Platform(format!("Windows would not bring {window} to the foreground"))) }
-        })
-        .await
+        blocking(move || if focus::bring_to_front(hwnd(window)) { Ok(()) } else { Err(Error::Platform(format!("Windows would not bring {window} to the foreground"))) }).await
     }
 }

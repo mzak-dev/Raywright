@@ -20,6 +20,9 @@ use crate::record::Recording;
 
 pub use html::render as render_html;
 
+/// The pictures in a trace, by file name.
+pub type TraceFiles = Vec<(String, Vec<u8>)>;
+
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct TraceEvent {
     pub action: String,
@@ -111,7 +114,14 @@ impl TraceRecorder {
     /// The trace so far.
     pub fn trace(&self, test: &str, passed: Option<bool>) -> Trace {
         let started = humantime(self.started_wall);
-        Trace { test: test.to_string(), app: self.app.clone(), started, passed, events: self.events.lock().unwrap().iter().map(|(e, _)| e.clone()).collect(), attachments: self.attachments.lock().unwrap().clone() }
+        Trace {
+            test: test.to_string(),
+            app: self.app.clone(),
+            started,
+            passed,
+            events: self.events.lock().unwrap().iter().map(|(e, _)| e.clone()).collect(),
+            attachments: self.attachments.lock().unwrap().clone(),
+        }
     }
 
     /// Writes `trace.zip` and `report.html` if the mode says to keep it: always for `on`,
@@ -171,7 +181,7 @@ fn write_zip(path: &Path, trace: &Trace, files: &[(String, Vec<u8>)]) -> Result<
 }
 
 /// Reads a `trace.zip` back: the trace and its files.
-pub fn read_zip(path: &Path) -> Result<(Trace, Vec<(String, Vec<u8>)>)> {
+pub fn read_zip(path: &Path) -> Result<(Trace, TraceFiles)> {
     use std::io::Read;
     let z = |e: zip::result::ZipError| Error::other(format!("{}: {e}", path.display()));
     let mut archive = zip::ZipArchive::new(std::fs::File::open(path)?).map_err(z)?;
@@ -234,7 +244,13 @@ mod tests {
         let trace = Trace {
             test: "t".into(),
             app: "a".into(),
-            events: vec![TraceEvent { action: "click".into(), selector: Some("role=button".into()), before: Some("shots/0000-before.png".into()), error: Some("boom <b>".into()), ..Default::default() }],
+            events: vec![TraceEvent {
+                action: "click".into(),
+                selector: Some("role=button".into()),
+                before: Some("shots/0000-before.png".into()),
+                error: Some("boom <b>".into()),
+                ..Default::default()
+            }],
             ..Default::default()
         };
         let png = imaging::encode_png(&image::RgbaImage::new(2, 2)).unwrap();

@@ -18,7 +18,7 @@ use crate::geometry::Rect;
 /// What an element is, by [ARIA role](https://www.w3.org/TR/wai-aria/#role_definitions) names.
 /// Platform roles (UIA ControlType, AT-SPI Role, AXRole) map onto these.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(into = "String", try_from = "String")]
+#[serde(into = "String", from = "String")]
 #[non_exhaustive]
 pub enum Role {
     Window,
@@ -151,10 +151,9 @@ impl From<Role> for String {
     }
 }
 
-impl TryFrom<String> for Role {
-    type Error = std::convert::Infallible;
-    fn try_from(s: String) -> std::result::Result<Self, Self::Error> {
-        Ok(Role::parse(&s))
+impl From<String> for Role {
+    fn from(s: String) -> Self {
+        Role::parse(&s)
     }
 }
 
