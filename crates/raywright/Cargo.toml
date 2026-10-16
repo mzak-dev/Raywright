@@ -1,0 +1,42 @@
+[package]
+name = "raywright"
+description = "Playwright for desktop apps: find, click, type, screenshot, record and assert on native windows, async on tokio"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+
+[features]
+default = ["macros"]
+## `#[raywright::test]`
+macros = ["dep:raywright-macros"]
+## `raywright::mock`: the in-memory driver, to test on any OS
+mock = ["dep:raywright-mock"]
+
+[dependencies]
+raywright-core.workspace = true
+raywright-protocol.workspace = true
+raywright-macros = { workspace = true, optional = true }
+raywright-mock = { workspace = true, optional = true }
+serde_json.workspace = true
+tokio.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+raywright-windows.workspace = true
+
+[dev-dependencies]
+async-trait.workspace = true
+# the tests and examples use the mock driver
+raywright = { path = ".", features = ["mock"] }
+
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"
+targets = ["x86_64-pc-windows-msvc", "x86_64-unknown-linux-gnu"]
+all-features = true
+
+[lints]
+workspace = true

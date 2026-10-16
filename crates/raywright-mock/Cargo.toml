@@ -1,0 +1,27 @@
+[package]
+name = "raywright-mock"
+description = "An in-memory Raywright driver: test Raywright itself, and your extensions, on any OS"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+raywright-core.workspace = true
+raywright-bridge.workspace = true
+raywright-protocol.workspace = true
+async-trait.workspace = true
+image.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+toml.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints]
+workspace = true

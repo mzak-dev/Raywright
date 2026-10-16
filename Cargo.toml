@@ -1,0 +1,70 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "fixtures/demo-app"]
+default-members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/mzak-dev/Raywright"
+authors = ["Mateusz Żak"]
+keywords = ["testing", "automation", "desktop", "playwright", "windows"]
+categories = ["development-tools::testing", "gui"]
+
+[workspace.dependencies]
+raywright = { path = "crates/raywright", version = "0.1.0" }
+raywright-core = { path = "crates/raywright-core", version = "0.1.0" }
+raywright-protocol = { path = "crates/raywright-protocol", version = "0.1.0" }
+raywright-bridge = { path = "crates/raywright-bridge", version = "0.1.0" }
+raywright-mock = { path = "crates/raywright-mock", version = "0.1.0" }
+raywright-windows = { path = "crates/raywright-windows", version = "0.1.0" }
+raywright-macros = { path = "crates/raywright-macros", version = "0.1.0" }
+raywright-mcp = { path = "crates/raywright-mcp", version = "0.1.0" }
+
+async-trait = "0.1.92"
+base64 = "0.22"
+clap = { version = "4.6", features = ["derive"] }
+crossterm = { version = "0.29", features = ["event-stream"] }
+futures = "0.3.31"
+image = { version = "0.25.10", default-features = false, features = ["png", "gif"] }
+proc-macro2 = "1"
+quote = "1"
+ratatui = "0.30"
+regex = "1.11"
+rmcp = { version = "3.5", features = ["server", "transport-io"] }
+schemars = "1"
+serde = { version = "1.0.219", features = ["derive", "rc"] }
+serde_json = "1.0.140"
+syn = { version = "2", features = ["full"] }
+tempfile = "3.20"
+thiserror = "2"
+tokio = { version = "1.47", features = ["rt-multi-thread", "macros", "process", "time", "sync", "net", "io-util", "fs"] }
+toml = "1"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+windows = "0.62.2"
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+missing_debug_implementations = "allow"
+
+[workspace.lints.clippy]
+dbg_macro = "warn"
+todo = "warn"
+unwrap_used = "allow"
+
+# Image work in tests (snapshots, recordings) is far too slow unoptimized.
+[profile.dev.package.image]
+opt-level = 3
+[profile.dev.package.png]
+opt-level = 3
+[profile.dev.package.gif]
+opt-level = 3
+[profile.dev.package.color_quant]
+opt-level = 3
+[profile.dev.package.fdeflate]
+opt-level = 3
+[profile.dev.package.weezl]
+opt-level = 3

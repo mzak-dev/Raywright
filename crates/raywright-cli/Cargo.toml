@@ -1,0 +1,33 @@
+[package]
+name = "raywright-cli"
+description = "The raywright command: inspector TUI, screenshots, recordings, trace viewer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[[bin]]
+name = "raywright"
+path = "src/main.rs"
+
+[features]
+default = ["tui"]
+## The interactive inspector (`raywright ui`)
+tui = ["dep:ratatui", "dep:crossterm"]
+
+[dependencies]
+raywright = { workspace = true, features = ["mock"] }
+clap.workspace = true
+crossterm = { workspace = true, optional = true }
+futures.workspace = true
+image.workspace = true
+ratatui = { workspace = true, optional = true }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+
+[lints]
+workspace = true

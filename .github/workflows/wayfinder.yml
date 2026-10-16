@@ -1,0 +1,82 @@
+# Raywright against a real Wayfinder: the Automation Bridge's unit tests and the end-to-end
+# tests of mzak-dev/desktopWidgets, built against THIS checkout of Raywright (not the pinned commit).
+name: Wayfinder
+
+on:
+  push:
+    branches: [ "feat/**" ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Wayfinder branch, tag or commit
+        default: feat/automation-bridge
+
+permissions:
+  contents: write # the pictures step below pushes a branch
+
+env:
+  CARGO_TERM_COLOR: always
+  # a failing e2e run should not throw away a 10-minute build
+  CACHE_ON_FAILURE: "true"
+
+jobs:
+  wayfinder:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: raywright
+      - uses: actions/checkout@v4
+        with:
+          repository: mzak-dev/desktopWidgets
+          ref: ${{ inputs.ref || 'feat/automation-bridge' }}
+          path: wayfinder
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            wayfinder
+            wayfinder/e2e
+      - name: Build Wayfinder against this Raywright
+        shell: bash
+        run: |
+          mkdir -p wayfinder/.cargo
+          # TOML literal strings ('...'): the Windows path has backslashes
+          cat > wayfinder/.cargo/config.toml <<TOML
+          [patch."https://github.com/mzak-dev/Raywright"]
+          raywright-bridge = { path = '$GITHUB_WORKSPACE/raywright/crates/raywright-bridge' }
+          raywright = { path = '$GITHUB_WORKSPACE/raywright/crates/raywright' }
+          TOML
+          cat wayfinder/.cargo/config.toml
+      - name: Wayfinder unit tests with the bridge
+        working-directory: wayfinder
+        run: cargo test --lib --features automation
+      - name: Build Wayfinder with the bridge
+        working-directory: wayfinder
+        run: cargo build --features automation
+      - name: End-to-end tests
+        working-directory: wayfinder
+        env:
+          RAYWRIGHT_TRACE: retain-on-failure
+        run: cargo test --manifest-path e2e/Cargo.toml -- --test-threads=1
+      - name: Keep traces, recordings and diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wayfinder-e2e-output
+          path: wayfinder/e2e/target/raywright/**
+          if-no-files-found: ignore
+      - name: Publish pictures the tests could not compare
+        # missing or differing pictures, to become (or be compared with) the stored ones:
+        # they go to the branch ci/wayfinder-pictures of this repository
+        if: always()
+        shell: bash
+        run: |
+          src=wayfinder/e2e/target/raywright
+          if [ -z "$(find "$src" -name '*-actual.png' 2>/dev/null | head -1)" ]; then echo "no pictures to publish"; exit 0; fi
+          rm -rf /tmp/pics && mkdir -p /tmp/pics
+          (cd "$src" && find . -name '*-actual.png' -o -name '*-diff.png') | while read f; do mkdir -p "/tmp/pics/$(dirname "$f")"; cp "$src/$f" "/tmp/pics/$f"; done
+          cd /tmp/pics && git init -q && git checkout -q -b ci/wayfinder-pictures
+          git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A && git commit -q -m "ci: pictures from wayfinder run ${{ github.run_id }}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci/wayfinder-pictures
