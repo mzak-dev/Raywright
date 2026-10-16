@@ -74,6 +74,15 @@ impl Driver for WindowsDriver {
         blocking(move || Ok(windows_list::at(p))).await
     }
 
+    async fn cursor_position(&self) -> Result<Option<Point>> {
+        blocking(|| {
+            let mut p = windows::Win32::Foundation::POINT::default();
+            // SAFETY: plain query.
+            Ok(unsafe { windows::Win32::UI::WindowsAndMessaging::GetCursorPos(&mut p) }.ok().map(|_| Point::new(p.x as f64, p.y as f64)))
+        })
+        .await
+    }
+
     fn input(&self, mode: InputMode) -> Result<Arc<dyn InputDriver>> {
         match mode {
             InputMode::Os => Ok(Arc::new(OsInput)),

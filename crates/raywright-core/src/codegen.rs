@@ -60,6 +60,32 @@ impl ActionHook for ScriptRecorder {
     }
 }
 
+/// A selector that finds `nodes[i]` and nothing else, preferring what survives app changes:
+/// the app's key, then role and name, then text, then position among its role.
+pub fn suggest_selector(nodes: &[crate::element::ElementNode], i: usize) -> String {
+    let me = &nodes[i].state;
+    let q = |s: &str| format!("\"{}\"", s.replace('"', "\\\""));
+    if let Some(k) = me.key.as_deref().filter(|k| !k.is_empty())
+        && nodes.iter().filter(|n| n.state.key.as_deref() == Some(k)).count() == 1
+    {
+        return format!("key={}", q(k));
+    }
+    let role = me.role.as_str();
+    if let Some(label) = me.label().filter(|l| !l.is_empty()) {
+        let norm = |s: &str| s.split_whitespace().collect::<Vec<_>>().join(" ");
+        let same_role_label = nodes.iter().filter(|n| n.state.role == me.role && n.state.label().map(norm) == Some(norm(label))).count();
+        if same_role_label == 1 {
+            return format!("role={role}[name={}]", q(&norm(label)));
+        }
+        let same_text = nodes.iter().filter(|n| [&n.state.name, &n.state.text, &n.state.value].into_iter().flatten().any(|t| norm(t) == norm(label))).count();
+        if same_text == 1 {
+            return format!("text={}", q(&norm(label)));
+        }
+    }
+    let nth = nodes[..i].iter().filter(|n| n.state.role == me.role).count();
+    format!("role={role} >> nth={nth}")
+}
+
 fn lit(s: &str) -> String {
     format!("{s:?}")
 }
@@ -153,7 +179,32 @@ pub fn to_rust(test_name: &str, launch: &Launch, steps: &[Step]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::driver::WindowId;
+    use crate::element::{ElementNode, ElementRef, ElementState, Role};
     use serde_json::json;
+
+    fn node(role: Role, name: Option<&str>, key: Option<&str>) -> ElementNode {
+        let mut s = ElementState::new(role);
+        s.name = name.map(str::to_string);
+        s.key = key.map(str::to_string);
+        ElementNode { id: ElementRef { source: "t".into(), window: WindowId(1), token: String::new() }, parent: None, state: s }
+    }
+
+    #[test]
+    fn suggests_the_most_stable_unique_selector() {
+        let nodes = vec![
+            node(Role::Button, Some("OK"), Some("ok")),
+            node(Role::Button, Some("Cancel"), None),
+            node(Role::Text, Some("Cancel"), None),
+            node(Role::Button, None, None),
+            node(Role::Button, None, None),
+            node(Role::Text, Some("Hello  there"), None),
+        ];
+        assert_eq!(suggest_selector(&nodes, 0), "key=\"ok\"");
+        assert_eq!(suggest_selector(&nodes, 1), "role=button[name=\"Cancel\"]");
+        assert_eq!(suggest_selector(&nodes, 4), "role=button >> nth=3");
+        assert_eq!(suggest_selector(&nodes, 5), "role=text[name=\"Hello there\"]");
+    }
 
     #[test]
     fn writes_a_test() {

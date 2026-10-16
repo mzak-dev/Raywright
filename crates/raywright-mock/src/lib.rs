@@ -256,6 +256,10 @@ impl Driver for MockDriver {
         Ok(self.all_windows().await?.into_iter().find(|w| w.is_shown() && w.client.contains(p)))
     }
 
+    async fn cursor_position(&self) -> Result<Option<Point>> {
+        Ok(Some(self.world.pointer.lock().unwrap().pos))
+    }
+
     fn input(&self, mode: InputMode) -> Result<Arc<dyn InputDriver>> {
         Ok(Arc::new(MockInput { driver: self.clone(), mode }))
     }

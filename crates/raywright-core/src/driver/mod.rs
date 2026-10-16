@@ -128,6 +128,12 @@ pub trait Driver: Send + Sync + 'static {
     /// The top-level window under a screen point, for the "receives events" check.
     async fn window_at(&self, p: Point) -> Result<Option<WindowInfo>>;
 
+    /// Where the mouse cursor is (screen px), for picking elements by pointing; `None` when
+    /// the platform can't tell.
+    async fn cursor_position(&self) -> Result<Option<Point>> {
+        Ok(None)
+    }
+
     /// Input in `mode`, or [`crate::Error::Unsupported`].
     fn input(&self, mode: InputMode) -> Result<Arc<dyn InputDriver>>;
 
