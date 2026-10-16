@@ -11,6 +11,9 @@ on:
         description: Wayfinder branch, tag or commit
         default: feat/automation-bridge
 
+permissions:
+  contents: write # the pictures step below pushes a branch
+
 env:
   CARGO_TERM_COLOR: always
   # a failing e2e run should not throw away a 10-minute build
@@ -63,3 +66,17 @@ jobs:
           name: wayfinder-e2e-output
           path: wayfinder/e2e/target/raywright/**
           if-no-files-found: ignore
+      - name: Publish pictures the tests could not compare
+        # missing or differing pictures, to become (or be compared with) the stored ones:
+        # they go to the branch ci/wayfinder-pictures of this repository
+        if: always()
+        shell: bash
+        run: |
+          src=wayfinder/e2e/target/raywright
+          if [ -z "$(find "$src" -name '*-actual.png' 2>/dev/null | head -1)" ]; then echo "no pictures to publish"; exit 0; fi
+          rm -rf /tmp/pics && mkdir -p /tmp/pics
+          (cd "$src" && find . -name '*-actual.png' -o -name '*-diff.png') | while read f; do mkdir -p "/tmp/pics/$(dirname "$f")"; cp "$src/$f" "/tmp/pics/$f"; done
+          cd /tmp/pics && git init -q && git checkout -q -b ci/wayfinder-pictures
+          git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A && git commit -q -m "ci: pictures from wayfinder run ${{ github.run_id }}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ci/wayfinder-pictures
