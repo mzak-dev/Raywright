@@ -32,6 +32,12 @@ jobs:
         run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - name: Tests (core, protocol, bridge, mock, facade, CLI, MCP)
         run: cargo test --locked --workspace
+      - name: Examples run (custom engine, matcher, profile)
+        shell: bash
+        run: |
+          for ex in launch_and_click custom_selector_engine custom_matcher app_profile; do
+            cargo run --locked -q -p raywright --example "$ex"
+          done
       - name: The core stays platform-free
         shell: bash
         run: |
