@@ -36,10 +36,11 @@ jobs:
         shell: bash
         run: |
           mkdir -p wayfinder/.cargo
+          # TOML literal strings ('...'): the Windows path has backslashes
           cat > wayfinder/.cargo/config.toml <<TOML
           [patch."https://github.com/mzak-dev/Raywright"]
-          raywright-bridge = { path = "$GITHUB_WORKSPACE/raywright/crates/raywright-bridge" }
-          raywright = { path = "$GITHUB_WORKSPACE/raywright/crates/raywright" }
+          raywright-bridge = { path = '$GITHUB_WORKSPACE/raywright/crates/raywright-bridge' }
+          raywright = { path = '$GITHUB_WORKSPACE/raywright/crates/raywright' }
           TOML
           cat wayfinder/.cargo/config.toml
       - name: Wayfinder unit tests with the bridge
