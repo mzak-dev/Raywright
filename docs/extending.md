@@ -1,7 +1,9 @@
 # Extending Raywright
 
 Everything below plugs in without changing Raywright. Register through
-`Raywright::builder()` (or `rw.register_engine` at run time).
+`Raywright::builder()` (or `rw.register_engine` at run time). To ship several of them for
+one kind of app (engines, a profile, MCP tools for Godot), bundle them as a
+[plugin](plugins.md).
 
 | To add | Implement | Register | Example |
 |---|---|---|---|

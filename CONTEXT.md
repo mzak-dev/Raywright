@@ -54,6 +54,10 @@ An app's animation time, stopped and stepped by Raywright through the bridge, so
 **Profile**:
 How to start one particular app and know it is ready: in code (`AppProfile`) or in raywright.toml.
 
+**Plugin**:
+Support for one kind of App (Godot) as one crate: selector engines, profiles, a driver, test helpers and MCP tools under one name. See docs/plugins.md.
+_Avoid_: extension (that is one engine, hook or source), addon
+
 **Hook**:
 Code around every action: tracing, slow motion, writing a script.
 _Avoid_: middleware, interceptor

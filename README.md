@@ -76,6 +76,7 @@ the same frame for frame on every machine.
 
 - [Architecture](docs/architecture.md): layers, traits, how a call flows
 - [Extending](docs/extending.md): your own selector engines, sources, hooks, matchers, profiles, exporters, MCP tools
+- [Plugins](docs/plugins.md) (design): support for one kind of app in one crate; Godot first
 - [Bridge protocol](docs/protocol.md)
 - [Platforms](docs/platforms.md): where Linux and macOS drivers go
 - [Recording](docs/recording.md) and [MCP](docs/mcp.md)
